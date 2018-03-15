@@ -25,7 +25,9 @@ module Sequel
         entire_min_max = self.order(*pk).select(*pk_expr).first
         min_max = {}
 
-        range_expr =  -> (col, range) { Sequel.&(Sequel.expr(col) >= range[0], Sequel.expr(col) <= range[1]) }
+        range_expr =  (-> (col, range) do
+          Sequel.&(Sequel.expr(col) >= range[0], Sequel.expr(col) <= range[1])
+        end)
 
         loop do
           pk.each do |col|
@@ -33,12 +35,14 @@ module Sequel
             entire_min_max[col][1] = finish[col] || entire_min_max[col][1]
           end
 
-          ds = self.order(*pk).limit(of).where(*pk.map { |col| range_expr.call(col, entire_min_max[col]) })
-          ds = ds.where(*min_max.map { |k,v| Sequel.expr(k) > v[1] }) if min_max.present?
+          ds = self.order(*pk).limit(of).where(
+            Sequel.&(*pk.map { |col| range_expr.call(col, entire_min_max[col]) })
+          )
+          ds = ds.where(Sequel.&(*min_max.map { |k,v| Sequel.expr(k) > v[1] })) if min_max.present?
           min_max = self.db.from(ds).select(*pk_expr).first
 
           break if min_max.values.flatten.any?(&:blank?)
-          yield self.where(*pk.map { |col| range_expr.call(col, min_max[col]) })
+          yield self.where(Sequel.&(*pk.map { |col| range_expr.call(col, min_max[col]) }))
         end
       end
 
