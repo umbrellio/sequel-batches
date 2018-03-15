@@ -39,9 +39,7 @@ module Sequel
             Sequel.&(*pk.map { |col| range_expr.call(col, entire_min_max[col]) })
           )
           if min_max.present?
-            ds = ds.where(Sequel.&(*min_max.each_with_index.map do |kv, i|
-              (i == (pk.size - 1) && pk.size > 1) ? Sequel.expr(kv[0]) >= kv[1][1] : Sequel.expr(kv[0]) > kv[1][1]
-            end))
+            ds=ds.where(Sequel.function(:concat, pk.map{|col| Sequel.cast(col, :text)}) > Sequel.function(:concat, min_max.values.map(&:last)))
           end
 
           min_max = self.db.from(ds).select(*pk_expr).first

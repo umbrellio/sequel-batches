@@ -1,8 +1,12 @@
 # Sequel::Batches
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/sequel/batches`. To experiment with that code, run `bin/console` for an interactive prompt.
+This dataset extension provides the method #in_batches. The method splits dataset in parts and yields it.
 
-TODO: Delete this and the text above, and describe your gem
+You can set following options:
+  - pk Overrides primary key of your dataset
+  - of sets chunk size (1000 by default)
+  - start as a hash { <column>: <start_value> } represents frame start for batch processing
+  - finish as a hash represents frame end
 
 ## Installation
 
@@ -22,7 +26,27 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+In order to use the feature you should enable the extension
+
+```ruby
+Sequel::DATABASES.first.extension :batches
+```
+
+And then the method becomes available on dataset
+
+```ruby
+User.where(role: "admin").in_batches(of: 4) do |ds|
+  ds.delete
+end
+```
+
+Finally, here's an example including all the available options
+
+```ruby
+Event.where(type: "login").in_batches(of: 4, pk: [:project_id, :external_user_id], start: { project_id: 2, external_user_id: 3 }, finish: { project_id: 5, external_user_id: 70 }) do |ds|
+  ds.delete
+end
+```
 
 ## Development
 
