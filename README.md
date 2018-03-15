@@ -1,4 +1,4 @@
-# Sequel::Batches
+# Sequel::Batches [![Build Status](https://travis-ci.org/umbrellio/sequel-batches.svg?branch=master)](https://travis-ci.org/umbrellio/sequel-batches)
 
 This dataset extension provides the method #in_batches. The method splits dataset in parts and yields it.
 
