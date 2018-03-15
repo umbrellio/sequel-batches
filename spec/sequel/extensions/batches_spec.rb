@@ -55,4 +55,10 @@ RSpec.describe Sequel::Extensions::Batches do
     DB[:data].in_batches(pk: [:created_at], of:1, start: {created_at: "2017-05-01"}) { |b| chunks << b.select_map(:id) }
     expect(chunks.flatten).to match_array([3, 4, 5, 6])
   end
+
+  it "works correctly composite" do
+    chunks = []
+    DB[:data].in_batches(pk: [:id, :value], of: 1) { |b| chunks << b.select_map(:id) }
+    expect(chunks.flatten).to match_array([1, 2, 3, 4, 5, 6])
+  end
 end
