@@ -31,8 +31,8 @@ module Sequel
 
         range_expr =  (-> (col, range) do
           Sequel.&(
-            Sequel.expr(col) >= range[0],
-            Sequel.expr(col) <= range[1],
+            Sequel.expr(Sequel[first_source][col]) >= range[0],
+            Sequel.expr(Sequel[first_source][col]) <= range[1],
           )
         end)
 
