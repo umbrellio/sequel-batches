@@ -6,7 +6,7 @@ require "sequel/extensions/batches/version"
 Gem::Specification.new do |spec|
   spec.name          = "sequel-batches"
   spec.version       = Sequel::Extensions::Batches::VERSION
-  spec.authors       = ["Fox"]
+  spec.authors       = ["fiscal-cliff"]
   spec.email         = ["why@not.com"]
 
   spec.summary       = %q{The extension mimics AR5 batches api}
