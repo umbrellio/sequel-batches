@@ -20,11 +20,13 @@ require "sequel/extensions/batches"
 DB_NAME = (ENV['DB_NAME'] || "batches_test").freeze
 
 def connect
-  Sequel.connect("postgres:///#{DB_NAME}").tap(&:tables)
+  jruby = (defined?(RUBY_ENGINE) && RUBY_ENGINE == 'jruby') || defined?(JRUBY_VERSION)
+  schema = jruby ? "jdbc:postgresql" : "postgres"
+  Sequel.connect("#{schema}:///#{DB_NAME}").tap(&:tables)
 rescue Sequel::DatabaseConnectionError => e
   raise unless e.message.include? "database \"#{DB_NAME}\" does not exist"
   `createdb #{DB_NAME}`
-  Sequel.connect("postgres:///#{DB_NAME}")
+  Sequel.connect("#{schema}:///#{DB_NAME}")
 end
 
 DB = connect

@@ -6,6 +6,8 @@ rvm:
   - 2.5.0
   - jruby
 before_install: gem install bundler -v 1.14.6
+gemfile:
+  - gemfiles/ci.gemfile
 addons:
   postgresql: "9.6"
 services:
