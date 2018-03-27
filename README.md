@@ -5,7 +5,7 @@ This dataset extension provides the method #in_batches. The method splits datase
 You can set following options:
   - pk Overrides primary key of your dataset
   - of sets chunk size (1000 by default)
-  - start as a hash { <column>: <start_value> } represents frame start for batch processing
+  - start as a hash { [column]: <start_value> } represents frame start for batch processing
   - finish as a hash represents frame end
 
 ## Installation
