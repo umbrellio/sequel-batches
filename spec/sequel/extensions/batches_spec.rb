@@ -56,13 +56,13 @@ RSpec.describe Sequel::Extensions::Batches do
     expect(chunks.flatten).to match_array([3, 4, 5, 6])
   end
 
-  it "works correctly composite" do
+  it "works correctly with composite pk" do
     chunks = []
     DB[:data].in_batches(pk: [:id, :value], of: 3) { |b| chunks << b.select_map(:id) }
     expect(chunks.flatten).to match_array([1, 2, 3, 4, 5, 6])
   end
 
-  it "works correctly composite on another pk" do
+  it "works correctly composite on reversed pk" do
     chunks = []
     DB[:data].in_batches(pk: [:value, :id], of: 2) { |b| chunks << b.select_map(:id) }
     expect(chunks.flatten).to match_array([1, 2, 3, 4, 5, 6])
