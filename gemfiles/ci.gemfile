@@ -9,5 +9,5 @@ end
 
 # JRuby Adapter Dependencies
 platforms :jruby do
-  gem "jdbc-postgres"
+  gem 'jdbc-postgres', '~> 9.4'
 end
