@@ -6,6 +6,9 @@ rvm:
   - 2.5.0
   - jruby
 before_install: gem install bundler -v 1.14.6
+env:
+  - SEQUEL_VERSION='~> 4.0'
+  - SEQUEL_VERSION='~> 5.0'
 gemfile:
   - gemfiles/ci.gemfile
 addons:

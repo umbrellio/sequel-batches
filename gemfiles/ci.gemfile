@@ -11,3 +11,5 @@ end
 platforms :jruby do
   gem 'jdbc-postgres', '~> 9.4'
 end
+
+gem sequel, "#{ENV['SEQUEL_VERSION']}"
