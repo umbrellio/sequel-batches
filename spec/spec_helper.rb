@@ -13,6 +13,7 @@ require 'coveralls'
 Coveralls.wear!
 require "bundler/setup"
 require "sequel/extensions/batches"
+require "logger"
 
 DB_NAME = (ENV['DB_NAME'] || "batches_test").freeze
 
@@ -27,6 +28,7 @@ rescue Sequel::DatabaseConnectionError => e
 end
 
 DB = connect
+DB.logger = Logger.new("log/db.log")
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
@@ -36,13 +38,21 @@ RSpec.configure do |config|
     DB.drop_table?(:data)
     DB.create_table?(:data) do
       primary_key :id
-      String   :created_at
-      Integer  :value
+      column :created_at, "text"
+      column :value, "int"
     end
 
-    data = YAML.load(IO.read("spec/fixtures/data.yml"))
+    DB[:data].multi_insert(YAML.load(IO.read("spec/fixtures/data.yml")))
 
-    DB[:data].multi_insert(data)
+    DB.drop_table?(:points)
+    DB.create_table?(:points) do
+      column :x, "int"
+      column :y, "int"
+      column :z, "int"
+      primary_key %i[x y z]
+    end
+
+    DB[:points].multi_insert(YAML.load(IO.read("spec/fixtures/points.yml")))
   end
 
   config.after(:all) do

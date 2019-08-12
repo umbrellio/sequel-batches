@@ -67,4 +67,10 @@ RSpec.describe Sequel::Extensions::Batches do
     DB[:data].in_batches(pk: [:value, :id], of: 2) { |b| chunks << b.select_map(:id) }
     expect(chunks.flatten).to match_array([1, 2, 3, 4, 5, 6])
   end
+
+  it "works correctly with real composite pk" do
+    chunks = []
+    DB[:points].in_batches { |b| chunks << b.select_map([:x, :y, :z]) }
+    expect(chunks).to eq([])
+  end
 end
