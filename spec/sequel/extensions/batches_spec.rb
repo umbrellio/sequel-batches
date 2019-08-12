@@ -4,73 +4,59 @@ RSpec.describe Sequel::Extensions::Batches do
     DB.extension :pg_array
   end
 
+  let(:chunks) { [] }
+
   it "has a version number" do
     expect(Sequel::Extensions::Batches::VERSION).not_to be nil
   end
 
   it "splits 6 records in 2 chunks" do
-    chunks = []
-    DB[:data].in_batches(of:3) { |b| chunks << b.select_map(:id) }
-    expect(chunks[0]).to match_array([1,2,3])
-    expect(chunks[1]).to match_array([4,5,6])
+    DB[:data].in_batches(of: 3) { |b| chunks << b.select_map(:id) }
+    expect(chunks).to eq([[1,2,3], [4,5,6]])
   end
 
   it "splits 6 records in 3 chunks" do
-    chunks = []
-    DB[:data].in_batches(of:2) { |b| chunks << b.select_map(:id) }
-    expect(chunks[0]).to match_array([1,2])
-    expect(chunks[1]).to match_array([3,4])
-    expect(chunks[2]).to match_array([5,6])
+    DB[:data].in_batches(of: 2) { |b| chunks << b.select_map(:id) }
+    expect(chunks).to eq([[1,2], [3,4], [5,6]])
   end
 
   it "splits 6 records in 6 chunks" do
-    chunks = []
-    DB[:data].in_batches(of:1) { |b| chunks << b.select_map(:id) }
-    expect(chunks[0]).to match_array([1])
-    expect(chunks[1]).to match_array([2])
-    expect(chunks[2]).to match_array([3])
-    expect(chunks[3]).to match_array([4])
-    expect(chunks[4]).to match_array([5])
-    expect(chunks[5]).to match_array([6])
+    DB[:data].in_batches(of: 1) { |b| chunks << b.select_map(:id) }
+    expect(chunks).to eq([[1], [2], [3], [4], [5], [6]])
   end
 
   it "starts from 4" do
-    chunks = []
-    DB[:data].in_batches(of:1, start: {id: 4}) { |b| chunks << b.select_map(:id) }
-    expect(chunks[0]).to match_array([4])
-    expect(chunks[1]).to match_array([5])
-    expect(chunks[2]).to match_array([6])
+    DB[:data].in_batches(of: 1, start: {id: 4}) { |b| chunks << b.select_map(:id) }
+    expect(chunks).to eq([[4], [5], [6]])
   end
 
   it "ends on 3" do
-    chunks = []
-    DB[:data].in_batches(of:1, finish: {id: 3}) { |b| chunks << b.select_map(:id) }
-    expect(chunks[0]).to match_array([1])
-    expect(chunks[1]).to match_array([2])
-    expect(chunks[2]).to match_array([3])
+    DB[:data].in_batches(of: 1, finish: {id: 3}) { |b| chunks << b.select_map(:id) }
+    expect(chunks).to eq([[1], [2], [3]])
   end
 
   it "uses another column" do
-    chunks = []
-    DB[:data].in_batches(pk: [:created_at], of:1, start: {created_at: "2017-05-01"}) { |b| chunks << b.select_map(:id) }
-    expect(chunks.flatten).to match_array([3, 4, 5, 6])
+    DB[:data].in_batches(pk: [:created_at], start: { created_at: "2017-05-01" } ) { |b| chunks << b.select_map(:id) }
+    expect(chunks).to eq([[3, 4, 5, 6]])
   end
 
   it "works correctly with composite pk" do
-    chunks = []
     DB[:data].in_batches(pk: [:id, :value], of: 3) { |b| chunks << b.select_map(:id) }
-    expect(chunks.flatten).to match_array([1, 2, 3, 4, 5, 6])
+    expect(chunks).to eq([[1, 2, 3], [4, 5, 6]])
   end
 
   it "works correctly composite on reversed pk" do
-    chunks = []
     DB[:data].in_batches(pk: [:value, :id], of: 2) { |b| chunks << b.select_map(:id) }
-    expect(chunks.flatten).to match_array([1, 2, 3, 4, 5, 6])
+    expect(chunks).to eq([[1, 2], [3, 4], [5, 6]])
   end
 
   it "works correctly with real composite pk" do
-    chunks = []
     DB[:points].in_batches { |b| chunks << b.select_map([:x, :y, :z]) }
-    expect(chunks).to eq([])
+    expect(chunks).to eq([[[15, 15, 15], [15, 20, 20]]])
+  end
+
+  it "works correctly with real composite pk and small of" do
+    DB[:points].in_batches(of: 1) { |b| chunks << b.select_map([:x, :y, :z]) }
+    expect(chunks).to eq([[[15, 15, 15]], [[15, 20, 20]]])
   end
 end
