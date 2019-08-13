@@ -55,10 +55,6 @@ RSpec.configure do |config|
     DB[:points].multi_insert(YAML.load(IO.read("spec/fixtures/points.yml")))
   end
 
-  config.after(:all) do
-    DB.drop_table?(:data)
-  end
-
   config.expect_with :rspec do |c|
     c.syntax = :expect
   end

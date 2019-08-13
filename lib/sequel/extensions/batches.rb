@@ -43,7 +43,12 @@ module Sequel
           or_conditions.reduce(:|)
         end
 
-        base_ds = order(*qualified_pk).limit(of)
+        sorted_ds = order(*qualified_pk)
+        base_ds = sorted_ds.limit(of)
+
+        actual_finish = db.from(sorted_ds).select(*pk).order(*pk).last
+
+        base_ds = base_ds.where(generate_conditions.call(actual_finish, finish: true)) if actual_finish.present?
         base_ds = base_ds.where(generate_conditions.call(start, start: true)) if start.present?
         base_ds = base_ds.where(generate_conditions.call(finish, finish: true)) if finish.present?
 
