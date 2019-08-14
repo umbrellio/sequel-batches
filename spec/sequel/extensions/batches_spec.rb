@@ -50,6 +50,22 @@ RSpec.describe Sequel::Extensions::Batches do
     expect(chunks).to eq([[1, 2], [3, 4], [5, 6]])
   end
 
+  it "works with updating recors" do
+    DB[:data].in_batches { |b| b.update(created_at: "2019-01-01") }
+    expect(DB[:data].where(created_at: "2019-01-01").count).to eq(6)
+  end
+
+  it "does nothing if table is empty" do
+    DB[:data].delete
+    DB[:data].in_batches { |b| chunks << b.select_map(:id) }
+    expect(chunks).to eq([])
+  end
+
+  it "does nothing if start is too high" do
+    DB[:data].in_batches(start: {id: 100}) { |b| chunks << b.select_map(:id) }
+    expect(chunks).to eq([])
+  end
+
   it "works correctly with real composite pk" do
     DB[:points].in_batches { |b| chunks << b.select_map([:x, :y, :z]) }
     expect(chunks).to eq([[[15, 15, 15], [15, 20, 20]]])
@@ -58,10 +74,5 @@ RSpec.describe Sequel::Extensions::Batches do
   it "works correctly with real composite pk and small of" do
     DB[:points].in_batches(of: 1) { |b| chunks << b.select_map([:x, :y, :z]) }
     expect(chunks).to eq([[[15, 15, 15]], [[15, 20, 20]]])
-  end
-
-  it "works with updating recors" do
-    DB[:data].in_batches { |b| b.update(created_at: "2019-01-01") }
-    expect(DB[:data].where(created_at: "2019-01-01").count).to eq(6)
   end
 end

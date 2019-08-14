@@ -42,16 +42,17 @@ module Sequel
         end
 
         base_ds = order(*qualified_pk)
-        pk_ds = db.from(base_ds).select(*pk).order(*pk)
+        base_ds = base_ds.where(conditions.call(start)) if start
+        base_ds = base_ds.where(conditions.call(finish, mode: :finish)) if finish
 
+        pk_ds = db.from(base_ds).select(*pk).order(*pk)
         actual_start = pk_ds.first
         actual_finish = pk_ds.last
 
-        base_ds = base_ds.where(conditions.call(actual_start)) if actual_start
-        base_ds = base_ds.where(conditions.call(actual_finish, mode: :finish)) if actual_finish
+        return unless actual_start && actual_finish
 
-        base_ds = base_ds.where(conditions.call(start)) if start
-        base_ds = base_ds.where(conditions.call(finish, mode: :finish)) if finish
+        base_ds = base_ds.where(conditions.call(actual_start))
+        base_ds = base_ds.where(conditions.call(actual_finish, mode: :finish))
 
         current_instance = nil
 
