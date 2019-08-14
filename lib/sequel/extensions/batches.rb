@@ -6,7 +6,7 @@ module Sequel
     module Batches
       MissingPKError = Class.new(StandardError)
 
-      def in_batches(pk: nil, of: 1000, start: {}, finish: {})
+      def in_batches(pk: nil, of: 1000, start: nil, finish: nil)
         pk ||=
           db.schema(first_source)
             .select { |x| x[1][:primary_key] }
@@ -17,7 +17,7 @@ module Sequel
 
         # For composite PK (x, y, z) this will generate the following WHERE expression:
         # (x > ?) OR (x = ? AND y > ?) OR (x = ? AND y = ? AND z > ?)
-        generate_conditions = lambda do |values, mode: :start, including: true|
+        conditions = lambda do |values, mode: :start, including: true|
           or_conditions = pk_combinations.map do |keys|
             and_conditions = keys.map.with_index do |key, index|
               value = values.fetch(key)
@@ -47,23 +47,23 @@ module Sequel
         actual_start = pk_ds.first
         actual_finish = pk_ds.last
 
-        base_ds = base_ds.where(generate_conditions.call(actual_start)) if actual_start.present?
-        base_ds = base_ds.where(generate_conditions.call(actual_finish, mode: :finish)) if actual_finish.present?
+        base_ds = base_ds.where(conditions.call(actual_start)) if actual_start
+        base_ds = base_ds.where(conditions.call(actual_finish, mode: :finish)) if actual_finish
 
-        base_ds = base_ds.where(generate_conditions.call(start)) if start.present?
-        base_ds = base_ds.where(generate_conditions.call(finish, mode: :finish)) if finish.present?
+        base_ds = base_ds.where(conditions.call(start)) if start
+        base_ds = base_ds.where(conditions.call(finish, mode: :finish)) if finish
 
         current_instance = nil
 
         loop do
           if current_instance
-            working_ds = base_ds.where(generate_conditions.call(current_instance.to_h, including: false))
+            working_ds = base_ds.where(conditions.call(current_instance.to_h, including: false))
           else
             working_ds = base_ds
           end
 
           current_instance = db.from(working_ds.limit(of)).select(*pk).order(*pk).last or break
-          working_ds = working_ds.where(generate_conditions.call(current_instance.to_h, mode: :finish))
+          working_ds = working_ds.where(conditions.call(current_instance.to_h, mode: :finish))
 
           yield working_ds
         end
