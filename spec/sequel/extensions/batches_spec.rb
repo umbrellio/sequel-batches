@@ -50,7 +50,7 @@ RSpec.describe Sequel::Extensions::Batches do
     expect(chunks).to eq([[1, 2], [3, 4], [5, 6]])
   end
 
-  it "works with updating recors" do
+  it "works with updating records" do
     DB[:data].in_batches { |b| b.update(created_at: "2019-01-01") }
     expect(DB[:data].where(created_at: "2019-01-01").count).to eq(6)
   end
