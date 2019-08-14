@@ -59,4 +59,9 @@ RSpec.describe Sequel::Extensions::Batches do
     DB[:points].in_batches(of: 1) { |b| chunks << b.select_map([:x, :y, :z]) }
     expect(chunks).to eq([[[15, 15, 15]], [[15, 20, 20]]])
   end
+
+  it "works with updating recors" do
+    DB[:data].in_batches { |b| b.update(created_at: "2019-01-01") }
+    expect(DB[:data].where(created_at: "2019-01-01").count).to eq(6)
+  end
 end

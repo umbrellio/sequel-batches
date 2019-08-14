@@ -17,21 +17,14 @@ module Sequel
 
         # For composite PK (x, y, z) this will generate the following WHERE expression:
         # (x > ?) OR (x = ? AND y > ?) OR (x = ? AND y = ? AND z > ?)
-        generate_conditions = lambda do |values, start: false, finish: false|
+        generate_conditions = lambda do |values, mode: :start, including: true|
           or_conditions = pk_combinations.map do |keys|
             and_conditions = keys.map.with_index do |key, index|
               value = values.fetch(key)
 
               # All conditions should use equality except for the last one
               if index == keys.size - 1
-                case
-                when start
-                  Sequel[key] >= value
-                when finish
-                  Sequel[key] <= value
-                else
-                  Sequel[key] > value
-                end
+                mode == :finish ? Sequel[key] < value : Sequel[key] > value
               else
                 Sequel[key] =~ value
               end
@@ -40,30 +33,39 @@ module Sequel
             and_conditions.reduce(:&)
           end
 
+          if including
+            including_expr = pk.map { |key| Sequel[key] =~ values.fetch(key) }.reduce(:&)
+            or_conditions << including_expr
+          end
+
           or_conditions.reduce(:|)
         end
 
-        sorted_ds = order(*qualified_pk)
-        base_ds = sorted_ds.limit(of)
+        base_ds = order(*qualified_pk)
+        pk_ds = db.from(base_ds).select(*pk).order(*pk)
 
-        actual_finish = db.from(sorted_ds).select(*pk).order(*pk).last
+        actual_start = pk_ds.first
+        actual_finish = pk_ds.last
 
-        base_ds = base_ds.where(generate_conditions.call(actual_finish, finish: true)) if actual_finish.present?
-        base_ds = base_ds.where(generate_conditions.call(start, start: true)) if start.present?
-        base_ds = base_ds.where(generate_conditions.call(finish, finish: true)) if finish.present?
+        base_ds = base_ds.where(generate_conditions.call(actual_start)) if actual_start.present?
+        base_ds = base_ds.where(generate_conditions.call(actual_finish, mode: :finish)) if actual_finish.present?
 
-        last_instance = nil
+        base_ds = base_ds.where(generate_conditions.call(start)) if start.present?
+        base_ds = base_ds.where(generate_conditions.call(finish, mode: :finish)) if finish.present?
+
+        current_instance = nil
 
         loop do
-          if last_instance
-            ds = base_ds.where(generate_conditions.call(last_instance.to_h))
+          if current_instance
+            working_ds = base_ds.where(generate_conditions.call(current_instance.to_h, including: false))
           else
-            ds = base_ds
+            working_ds = base_ds
           end
 
-          last_instance = db.from(ds).select(*pk).order(*pk).last or break
+          current_instance = db.from(working_ds.limit(of)).select(*pk).order(*pk).last or break
+          working_ds = working_ds.where(generate_conditions.call(current_instance.to_h, mode: :finish))
 
-          yield ds
+          yield working_ds
         end
       end
 
