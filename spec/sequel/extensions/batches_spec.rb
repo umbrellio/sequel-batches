@@ -45,9 +45,15 @@ RSpec.describe Sequel::Extensions::Batches do
     expect(chunks).to eq([[1, 2, 3], [4, 5, 6]])
   end
 
-  it "works correctly composite on reversed pk" do
+  it "works correctly with composite pk on reversed pk" do
     DB[:data].in_batches(pk: [:value, :id], of: 2) { |b| chunks << b.select_map(:id) }
     expect(chunks).to eq([[1, 2], [3, 4], [5, 6]])
+  end
+
+  it "works correctly with composite pk containing nulls" do
+    DB[:data].where(id: [1, 2, 3]).update(value: nil, created_at: nil)
+    DB[:data].in_batches(pk: [:id, :value, :created_at], of: 3) { |b| chunks << b.select_map(:id) }
+    expect(chunks).to eq([[1, 2, 3], [4, 5, 6]])
   end
 
   it "works with updating records" do
