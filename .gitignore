@@ -9,6 +9,9 @@
 
 # rspec failure tracking
 .rspec_status
+
 *.gem
+*.lock
+*.log
 .coveralls.yml
-*/**/*.lock
+.ruby-version
