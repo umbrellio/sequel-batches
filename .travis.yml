@@ -1,17 +1,21 @@
 sudo: false
 language: ruby
 rvm:
-  - 2.3.3
-  - 2.4.2
-  - 2.5.0
+  - 2.3
+  - 2.4
+  - 2.5
+  - 2.6
+  - ruby-head
   - jruby
-before_install: gem install bundler -v 1.14.6
+before_install: gem install bundler
 env:
-  - SEQUEL_VERSION='~> 4.0'
-  - SEQUEL_VERSION='~> 5.0'
+  - SEQUEL_VERSION="~> 4.0"
+  - SEQUEL_VERSION="~> 5.0"
 gemfile:
   - gemfiles/ci.gemfile
 addons:
   postgresql: "9.6"
 services:
   - postgresql
+allow_failures:
+  - rvm: ruby-head
