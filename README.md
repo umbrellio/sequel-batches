@@ -2,11 +2,21 @@
 
 This dataset extension provides the method #in_batches. The method splits dataset in parts and yields it.
 
-You can set following options:
-  - pk Overrides primary key of your dataset
-  - of sets chunk size (1000 by default)
-  - start as a hash { [column]: <start_value> } represents frame start for batch processing
-  - finish as a hash represents frame end
+You can set the following options:
+
+### pk
+Overrides primary key of your dataset. This option is required in case your table doesn't have a real PK, otherwise you will get `Sequel::Extensions::Batches::MissingPKError`.
+
+Note that you have to provide columns that don't contain NULL values, otherwise this may not work as intended. You will receive `Sequel::Extensions::Batches::NullPKError` in case batch processing detects a NULL value on it's way, but it's not guaranteed since it doesn't check all the rows for performance reasons.
+
+### of
+Sets chunk size (1000 by default).
+
+### start
+A hash `{ [column]: <start_value> }` that represents frame start for batch processing. Note that you will get `Sequel::Extensions::Batches::InvalidPKError` in case you provide a hash with wrong keys (ordering matters as well).
+
+### finish
+Same as `start` but represents the frame end.
 
 ## Installation
 
