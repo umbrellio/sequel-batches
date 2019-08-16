@@ -1,7 +1,6 @@
 RSpec.describe Sequel::Extensions::Batches do
   before(:all) do
     DB.extension :batches
-    DB.extension :pg_array
   end
 
   let(:chunks) { [] }
@@ -50,10 +49,11 @@ RSpec.describe Sequel::Extensions::Batches do
     expect(chunks).to eq([[1, 2], [3, 4], [5, 6]])
   end
 
-  it "works correctly with composite pk containing nulls" do
+  it "raises NullPKError in case of pk containing nulls" do
     DB[:data].where(id: [1, 2, 3]).update(value: nil, created_at: nil)
-    DB[:data].in_batches(pk: [:id, :value, :created_at], of: 3) { |b| chunks << b.select_map(:id) }
-    expect(chunks).to eq([[1, 2, 3], [4, 5, 6]])
+
+    expect { DB[:data].in_batches(pk: [:id, :value, :created_at], of: 3) {} }
+      .to raise_error(Sequel::Extensions::Batches::NullPKError)
   end
 
   it "works with updating records" do
@@ -73,12 +73,16 @@ RSpec.describe Sequel::Extensions::Batches do
   end
 
   it "works correctly with real composite pk" do
-    DB[:points].in_batches { |b| chunks << b.select_map([:x, :y, :z]) }
+    DB[:points].in_batches(pk: %i[x y z]) { |b| chunks << b.select_map([:x, :y, :z]) }
     expect(chunks).to eq([[[15, 15, 15], [15, 20, 20]]])
   end
 
   it "works correctly with real composite pk and small of" do
-    DB[:points].in_batches(of: 1) { |b| chunks << b.select_map([:x, :y, :z]) }
+    DB[:points].in_batches(pk: %i[x y z], of: 1) { |b| chunks << b.select_map([:x, :y, :z]) }
     expect(chunks).to eq([[[15, 15, 15]], [[15, 20, 20]]])
+  end
+
+  it "raises MissingPKError in case of missing pk" do
+    expect { DB[:points].in_batches {} }.to raise_error(Sequel::Extensions::Batches::MissingPKError)
   end
 end

@@ -49,7 +49,6 @@ RSpec.configure do |config|
       column :x, "int"
       column :y, "int"
       column :z, "int"
-      primary_key %i[x y z]
     end
 
     DB[:points].multi_insert(YAML.load(IO.read("spec/fixtures/points.yml")))
