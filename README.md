@@ -2,6 +2,8 @@
 
 This dataset extension provides the method #in_batches. The method splits dataset in parts and yields it.
 
+Note: currently only PostgreSQL database is supported.
+
 You can set the following options:
 
 ### pk
