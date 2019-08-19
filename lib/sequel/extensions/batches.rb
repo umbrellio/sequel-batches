@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Sequel
   module Extensions
     module Batches
@@ -5,6 +7,8 @@ module Sequel
       NullPKError = Class.new(StandardError)
       InvalidPKError = Class.new(StandardError)
 
+      # TODO: fix and remove rubocop:disable
+      # rubocop:disable Metrics/MethodLength
       def in_batches(pk: nil, of: 1000, start: nil, finish: nil)
         pk ||= db.schema(first_source).select { |x| x[1][:primary_key] }.map(&:first)
         raise MissingPKError if pk.empty?
@@ -13,11 +17,13 @@ module Sequel
 
         check_pk = lambda do |input_pk|
           raise InvalidPKError if input_pk.keys != pk
+
           input_pk
         end
 
         conditions = lambda do |pk, sign:|
           raise NullPKError if pk.values.any?(&:nil?)
+
           row_expr = Sequel.function(:row, *pk.values)
           Sequel.function(:row, *qualified_pk).public_send(sign, row_expr)
         end
@@ -38,11 +44,11 @@ module Sequel
         current_instance = nil
 
         loop do
-          if current_instance
-            working_ds = base_ds.where(conditions.call(current_instance.to_h, sign: :>))
-          else
-            working_ds = base_ds
-          end
+          working_ds = if current_instance
+                         base_ds.where(conditions.call(current_instance.to_h, sign: :>))
+                       else
+                         base_ds
+                       end
 
           current_instance = db.from(working_ds.limit(of)).select(*pk).order(*pk).last or break
           working_ds = working_ds.where(conditions.call(current_instance.to_h, sign: :<=))
@@ -50,8 +56,7 @@ module Sequel
           yield working_ds
         end
       end
-
-      private
+      # rubocop:enable Metrics/MethodLength
 
       ::Sequel::Dataset.register_extension(:batches, Batches)
     end

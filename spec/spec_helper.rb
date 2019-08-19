@@ -1,3 +1,16 @@
+# frozen_string_literal: true
+
+require "simplecov"
+require "coveralls"
+
+SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new([
+  SimpleCov::Formatter::HTMLFormatter,
+  Coveralls::SimpleCov::Formatter,
+])
+
+SimpleCov.minimum_coverage(100)
+SimpleCov.start
+
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
   config.example_status_persistence_file_path = ".rspec_status"
@@ -10,22 +23,19 @@ RSpec.configure do |config|
   end
 end
 
-require "coveralls"
-
-Coveralls.wear!
-
 require "bundler/setup"
 require "sequel"
 require "logger"
 
-DB_NAME = (ENV['DB_NAME'] || "batches_test").freeze
+DB_NAME = (ENV["DB_NAME"] || "batches_test").freeze
 
 def connect
-  jruby = (defined?(RUBY_ENGINE) && RUBY_ENGINE == 'jruby') || defined?(JRUBY_VERSION)
+  jruby = (defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby") || defined?(JRUBY_VERSION)
   schema = jruby ? "jdbc:postgresql" : "postgres"
   Sequel.connect("#{schema}:///#{DB_NAME}").tap(&:tables)
-rescue Sequel::DatabaseConnectionError => e
-  raise unless e.message.include? "database \"#{DB_NAME}\" does not exist"
+rescue Sequel::DatabaseConnectionError => error
+  raise unless error.message.include? "database \"#{DB_NAME}\" does not exist"
+
   `createdb #{DB_NAME}`
   Sequel.connect("#{schema}:///#{DB_NAME}")
 end
@@ -47,7 +57,7 @@ RSpec.configure do |config|
       column :value, "int"
     end
 
-    DB[:data].multi_insert(YAML.load(IO.read("spec/fixtures/data.yml")))
+    DB[:data].multi_insert(YAML.load_file("./spec/fixtures/data.yml"))
 
     DB.drop_table?(:points)
     DB.create_table?(:points) do
@@ -56,7 +66,7 @@ RSpec.configure do |config|
       column :z, "int"
     end
 
-    DB[:points].multi_insert(YAML.load(IO.read("spec/fixtures/points.yml")))
+    DB[:points].multi_insert(YAML.load_file("./spec/fixtures/points.yml"))
   end
 
   config.expect_with :rspec do |c|
