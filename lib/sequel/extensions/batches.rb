@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative "batches/yielder"
-
 module Sequel
   module Extensions
     module Batches
@@ -17,3 +15,5 @@ module Sequel
 end
 
 ::Sequel::Dataset.register_extension(:batches, Sequel::Extensions::Batches)
+
+require_relative "batches/yielder"
