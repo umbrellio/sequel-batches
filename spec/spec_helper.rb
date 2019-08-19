@@ -8,7 +8,7 @@ SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new([
   Coveralls::SimpleCov::Formatter,
 ])
 
-SimpleCov.minimum_coverage(100)
+SimpleCov.minimum_coverage(100) unless RUBY_ENGINE == "jruby"
 SimpleCov.start
 
 RSpec.configure do |config|
