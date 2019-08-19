@@ -13,10 +13,6 @@ rvm:
 
 before_install: gem install bundler
 
-env: SEQUEL_VERSION="~> 5.0"
-
-gemfile: gemfiles/ci.gemfile
-
 addons:
   postgresql: "9.6"
 
@@ -24,11 +20,6 @@ services:
   - postgresql
 
 matrix:
-  include:
-    - rvm: 2.6
-      env: SEQUEL_VERSION="~> 4.0"
   allow_failures:
     - rvm: ruby-head
-      env: SEQUEL_VERSION="~> 5.0"
     - rvm: jruby-head
-      env: SEQUEL_VERSION="~> 5.0"
