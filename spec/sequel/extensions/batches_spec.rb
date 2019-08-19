@@ -1,13 +1,5 @@
-RSpec.describe Sequel::Extensions::Batches do
-  before(:all) do
-    DB.extension :batches
-  end
-
+RSpec.describe "Sequel::Extensions::Batches" do
   let(:chunks) { [] }
-
-  it "has a version number" do
-    expect(Sequel::Extensions::Batches::VERSION).not_to be nil
-  end
 
   it "splits 6 records in 2 chunks" do
     DB[:data].in_batches(of: 3) { |b| chunks << b.select_map(:id) }

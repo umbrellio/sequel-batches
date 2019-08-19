@@ -9,10 +9,13 @@ RSpec.configure do |config|
     c.syntax = :expect
   end
 end
-require 'coveralls'
+
+require "coveralls"
+
 Coveralls.wear!
+
 require "bundler/setup"
-require "sequel/extensions/batches"
+require "sequel"
 require "logger"
 
 DB_NAME = (ENV['DB_NAME'] || "batches_test").freeze
@@ -35,6 +38,8 @@ RSpec.configure do |config|
   config.example_status_persistence_file_path = ".rspec_status"
 
   config.before(:all) do
+    DB.extension :batches
+
     DB.drop_table?(:data)
     DB.create_table?(:data) do
       primary_key :id

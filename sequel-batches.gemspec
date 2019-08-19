@@ -1,11 +1,10 @@
 
 lib = File.expand_path("../lib", __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require "sequel/extensions/batches/version"
 
 Gem::Specification.new do |spec|
   spec.name          = "sequel-batches"
-  spec.version       = Sequel::Extensions::Batches::VERSION
+  spec.version       = "0.2.1"
   spec.authors       = ["fiscal-cliff", "umbrellio"]
   spec.email         = ["oss@umbrellio.biz"]
 

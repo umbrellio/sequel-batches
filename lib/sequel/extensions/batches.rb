@@ -1,6 +1,3 @@
-require "sequel/extensions/batches/version"
-require "sequel/model"
-
 module Sequel
   module Extensions
     module Batches
