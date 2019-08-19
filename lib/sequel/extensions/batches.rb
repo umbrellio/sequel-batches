@@ -4,6 +4,8 @@ require "sequel/model"
 module Sequel
   module Extensions
     module Batches
+      VERSION = "0.2.0"
+
       MissingPKError = Class.new(StandardError)
       NullPKError = Class.new(StandardError)
       InvalidPKError = Class.new(StandardError)
