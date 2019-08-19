@@ -6,12 +6,12 @@ require "sequel/extensions/batches/version"
 Gem::Specification.new do |spec|
   spec.name          = "sequel-batches"
   spec.version       = Sequel::Extensions::Batches::VERSION
-  spec.authors       = ["fiscal-cliff"]
-  spec.email         = ["why@not.com"]
+  spec.authors       = ["fiscal-cliff", "umbrellio"]
+  spec.email         = ["oss@umbrellio.biz"]
 
   spec.summary       = %q{The extension mimics AR5 batches api}
   spec.description   = %q{Allows you to split your dataset in batches}
-  spec.homepage      = "https://github.com/fiscal-cliff"
+  spec.homepage      = "https://github.com/umbrellio/sequel-batches"
   spec.license       = "MIT"
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
