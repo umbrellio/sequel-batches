@@ -89,6 +89,6 @@ RSpec.describe "Sequel::Extensions::Batches" do
   end
 
   it "qualifies pk to mitigate ambiguous column error" do
-    expect { DB[:data, :data2].in_batches {} }.to_not raise_error
+    expect { DB[:data, :data2].in_batches {} }.not_to raise_error
   end
 end
