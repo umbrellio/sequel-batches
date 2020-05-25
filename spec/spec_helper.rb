@@ -53,14 +53,16 @@ RSpec.configure do |config|
   config.before(:all) do
     DB.extension :batches
 
-    DB.drop_table?(:data)
-    DB.create_table?(:data) do
-      primary_key :id
-      column :created_at, "text"
-      column :value, "int"
-    end
+    %i[data data2].each do |table|
+      DB.drop_table?(table)
+      DB.create_table?(table) do
+        primary_key :id
+        column :created_at, "text"
+        column :value, "int"
+      end
 
-    DB[:data].multi_insert(YAML.load_file("./spec/fixtures/data.yml"))
+      DB[table].multi_insert(YAML.load_file("./spec/fixtures/data.yml"))
+    end
 
     DB.drop_table?(:points)
     DB.create_table?(:points) do

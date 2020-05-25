@@ -87,4 +87,8 @@ RSpec.describe "Sequel::Extensions::Batches" do
   it "raises MissingPKError in case of missing pk" do
     expect { DB[:points].in_batches {} }.to raise_error(Sequel::Extensions::Batches::MissingPKError)
   end
+
+  it "qualifies pk to mitigate ambiguous column error" do
+    expect { DB[:data, :data2].in_batches {} }.to_not raise_error
+  end
 end
