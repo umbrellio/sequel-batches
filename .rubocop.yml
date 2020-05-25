@@ -5,5 +5,5 @@ AllCops:
   DisplayCopNames: true
   TargetRubyVersion: 2.3
 
-Naming/UncommunicativeMethodParamName:
+Naming/MethodParameterName:
   Enabled: false

@@ -26,7 +26,8 @@ module Sequel::Extensions::Batches
             base_ds
           end
 
-        current_instance = db.from(working_ds.limit(of)).select(*pk).order(*pk).last or break
+        working_ds_pk = working_ds.select(*qualified_pk).limit(of)
+        current_instance = db.from(working_ds_pk).select(*pk).order(*pk).last or break
         working_ds = working_ds.where(generate_conditions(current_instance.to_h, sign: :<=))
 
         yield working_ds
@@ -67,7 +68,7 @@ module Sequel::Extensions::Batches
       base_ds = base_ds.where(generate_conditions(check_pk(start), sign: :>=)) if start
       base_ds = base_ds.where(generate_conditions(check_pk(finish), sign: :<=)) if finish
 
-      pk_ds = db.from(base_ds).select(*pk).order(*pk)
+      pk_ds = db.from(base_ds.select(*qualified_pk)).select(*pk).order(*pk)
       actual_start = pk_ds.first
       actual_finish = pk_ds.last
 
