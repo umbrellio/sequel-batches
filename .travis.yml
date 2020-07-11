@@ -3,13 +3,11 @@ sudo: false
 language: ruby
 
 rvm:
-  - 2.3
   - 2.4
   - 2.5
   - 2.6
-  - jruby-9.2.8.0
+  - 2.7
   - ruby-head
-  - jruby-head
 
 before_install: gem install bundler
 
@@ -22,4 +20,3 @@ services:
 matrix:
   allow_failures:
     - rvm: ruby-head
-    - rvm: jruby-head

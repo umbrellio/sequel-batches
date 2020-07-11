@@ -1,9 +1,5 @@
 # frozen_string_literal: true
 
-def is_jruby?
-  RUBY_ENGINE == "jruby"
-end
-
 require "simplecov"
 require "coveralls"
 
@@ -12,7 +8,7 @@ SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new([
   Coveralls::SimpleCov::Formatter,
 ])
 
-SimpleCov.minimum_coverage(100) unless is_jruby?
+SimpleCov.minimum_coverage(100)
 SimpleCov.start
 
 RSpec.configure do |config|
@@ -34,13 +30,12 @@ require "logger"
 DB_NAME = (ENV["DB_NAME"] || "batches_test").freeze
 
 def connect
-  schema = is_jruby? ? "jdbc:postgresql" : "postgres"
-  Sequel.connect("#{schema}:///#{DB_NAME}").tap(&:tables)
+  Sequel.connect("postgres:///#{DB_NAME}").tap(&:tables)
 rescue Sequel::DatabaseConnectionError => error
   raise unless error.message.include? "database \"#{DB_NAME}\" does not exist"
 
   `createdb #{DB_NAME}`
-  Sequel.connect("#{schema}:///#{DB_NAME}")
+  Sequel.connect("postgres:///#{DB_NAME}")
 end
 
 DB = connect
