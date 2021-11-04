@@ -44,6 +44,7 @@ options = {
   pk: [:project_id, :external_user_id],
   start: { project_id: 2, external_user_id: 3 },
   finish: { project_id: 5, external_user_id: 70 },
+  reverse_order: true,
 }
 
 Event.where(type: "login").in_batches(options) do |ds|
@@ -68,6 +69,9 @@ A hash `{ [column]: <start_value> }` that represents frame start for batch proce
 
 ### finish
 Same as `start` but represents the frame end.
+
+### reverse_order
+Set to true if reverse order of primary key ordering is needed (false by default).
 
 ## Contributing
 
