@@ -91,4 +91,14 @@ RSpec.describe "Sequel::Extensions::Batches" do
   it "qualifies pk to mitigate ambiguous column error" do
     expect { DB[:data, :data2].in_batches {} }.not_to raise_error
   end
+
+  it "respects reverse_order option" do
+    DB[:data].in_batches(of: 3, reverse_order: true) { |b| chunks << b.select_map(:id) }
+    expect(chunks).to eq([[6, 5, 4], [3, 2, 1]])
+  end
+
+  it "respects reverse_order option with composite pk" do
+    DB[:points].in_batches(pk: %i[x y z], reverse_order: true) { |b| chunks << b.select_map(%i[x y z]) }
+    expect(chunks).to eq([[[15, 20, 20], [15, 15, 15]]])
+  end
 end

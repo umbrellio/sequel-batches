@@ -15,18 +15,6 @@ SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new([
 SimpleCov.minimum_coverage(100) unless is_jruby?
 SimpleCov.start
 
-RSpec.configure do |config|
-  # Enable flags like --only-failures and --next-failure
-  config.example_status_persistence_file_path = ".rspec_status"
-
-  # Disable RSpec exposing methods globally on `Module` and `main`
-  config.disable_monkey_patching!
-
-  config.expect_with :rspec do |c|
-    c.syntax = :expect
-  end
-end
-
 require "bundler/setup"
 require "sequel"
 require "logger"
@@ -50,6 +38,9 @@ RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
   config.example_status_persistence_file_path = ".rspec_status"
 
+  # Disable RSpec exposing methods globally on `Module` and `main`
+  config.disable_monkey_patching!
+
   config.before(:all) do
     DB.extension :batches
 
@@ -72,6 +63,13 @@ RSpec.configure do |config|
     end
 
     DB[:points].multi_insert(YAML.load_file("./spec/fixtures/points.yml"))
+  end
+
+  config.around(:each) do |example|
+    DB.transaction do
+      example.run
+      raise Sequel::Rollback
+    end
   end
 
   config.expect_with :rspec do |c|
