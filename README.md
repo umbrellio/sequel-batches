@@ -44,7 +44,7 @@ options = {
   pk: [:project_id, :external_user_id],
   start: { project_id: 2, external_user_id: 3 },
   finish: { project_id: 5, external_user_id: 70 },
-  reverse_order: true,
+  order: :desc,
 }
 
 Event.where(type: "login").in_batches(options) do |ds|
