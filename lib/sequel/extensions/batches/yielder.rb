@@ -11,11 +11,10 @@ module Sequel::Extensions::Batches
       self.of = options.delete(:of) || 1000
       self.start = options.delete(:start)
       self.finish = options.delete(:finish)
-
       self.order = options.delete(:order) || :asc
-      unless %i[asc desc].include?(order)
-        raise ArgumentError, ":order must be :asc or :desc, got #{order}"
-      end
+
+      raise ArgumentError, ":order must be :asc or :desc, got #{order.inspect}" unless %i[asc desc].include?(order)
+      raise ArgumentError, "unknown options: #{options.keys.inspect}" if options.any?
     end
 
     def call

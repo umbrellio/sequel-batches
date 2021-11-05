@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
   spec.version = "1.1.0"
   spec.authors = %w[fiscal-cliff umbrellio]
   spec.email = ["oss@umbrellio.biz"]
-  spec.required_ruby_version = ">= 2.5"
+  spec.required_ruby_version = ">= 2.6"
 
   spec.summary = "The extension mimics AR5 batches api"
   spec.description = "Allows you to split your dataset in batches"

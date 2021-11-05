@@ -3,6 +3,23 @@
 RSpec.describe "Sequel::Extensions::Batches" do
   let(:chunks) { [] }
 
+  it "raises InvalidPKError in case of incorrect key ordering in start" do
+    expect { DB[:points].in_batches(pk: %i[x y z], start: { y: 16, z: 100, x: 15 }) }
+      .to raise_error(Sequel::Extensions::Batches::InvalidPKError)
+  end
+
+  it "raises MissingPKError in case of missing pk" do
+    expect { DB[:points].in_batches }.to raise_error(Sequel::Extensions::Batches::MissingPKError)
+  end
+
+  it "validates order option" do
+    expect { DB[:data].in_batches(of: 3, order: :wrong) }.to raise_error(ArgumentError)
+  end
+
+  it "raises ArgumentError on unknown options" do
+    expect { DB[:data].in_batches(wrong: :argument) }.to raise_error(ArgumentError)
+  end
+
   it "splits 6 records in 2 chunks" do
     DB[:data].in_batches(of: 3) { |b| chunks << b.select_map(:id) }
     expect(chunks).to eq([[1, 2, 3], [4, 5, 6]])
@@ -79,21 +96,8 @@ RSpec.describe "Sequel::Extensions::Batches" do
     expect(chunks).to eq([[[15, 15, 15]], [[15, 20, 20]]])
   end
 
-  it "raises InvalidPKError in case of incorrect key ordering in start" do
-    expect { DB[:points].in_batches(pk: %i[x y z], start: { y: 16, z: 100, x: 15 }) }
-      .to raise_error(Sequel::Extensions::Batches::InvalidPKError)
-  end
-
-  it "raises MissingPKError in case of missing pk" do
-    expect { DB[:points].in_batches }.to raise_error(Sequel::Extensions::Batches::MissingPKError)
-  end
-
   it "qualifies pk to mitigate ambiguous column error" do
     expect { DB[:data, :data2].in_batches }.not_to raise_error
-  end
-
-  it "validates order option" do
-    expect { DB[:data].in_batches(of: 3, order: :wrong) }.to raise_error(ArgumentError)
   end
 
   it "respects order option" do
