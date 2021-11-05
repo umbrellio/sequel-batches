@@ -13,7 +13,7 @@ module Sequel::Extensions::Batches
       self.finish = options.delete(:finish)
 
       self.order = options.delete(:order) || :asc
-      unless [:asc, :desc].include?(order)
+      unless %i[asc desc].include?(order)
         raise ArgumentError, ":order must be :asc or :desc, got #{order}"
       end
     end
