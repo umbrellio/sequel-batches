@@ -5,21 +5,22 @@ module Sequel::Extensions::Batches
     attr_accessor :ds, :of, :start, :finish, :order
     attr_writer :pk
 
-    def initialize(ds:, pk: nil, of: 1000, start: nil, finish: nil, order: :asc)
+    def initialize(ds:, **options)
       self.ds = ds
-      self.pk = pk
-      self.of = of
-      self.start = start
-      self.finish = finish
+      self.pk = options.delete(:pk)
+      self.of = options.delete(:of) || 1000
+      self.start = options.delete(:start)
+      self.finish = options.delete(:finish)
 
+      self.order = options.delete(:order) || :asc
       unless [:asc, :desc].include?(order)
         raise ArgumentError, ":order must be :asc or :desc, got #{order}"
       end
-      self.order = order
     end
 
     def call
       base_ds = setup_base_ds or return
+      return enum_for(:call) unless block_given?
 
       current_instance = nil
 
@@ -101,9 +102,7 @@ module Sequel::Extensions::Batches
       return unless actual_start && actual_finish
 
       base_ds = base_ds.where(generate_conditions(actual_start, sign: sign_from_inclusive))
-      base_ds = base_ds.where(generate_conditions(actual_finish, sign: sign_to_inclusive))
-
-      base_ds
+      base_ds.where(generate_conditions(actual_finish, sign: sign_to_inclusive))
     end
   end
 end

@@ -49,7 +49,7 @@ RSpec.describe "Sequel::Extensions::Batches" do
   it "raises NullPKError in case of pk containing nulls" do
     DB[:data].where(id: [1, 2, 3]).update(value: nil, created_at: nil)
 
-    expect { DB[:data].in_batches(pk: %i[id value created_at], of: 3) {} }
+    expect { DB[:data].in_batches(pk: %i[id value created_at], of: 3) }
       .to raise_error(Sequel::Extensions::Batches::NullPKError)
   end
 
@@ -80,16 +80,16 @@ RSpec.describe "Sequel::Extensions::Batches" do
   end
 
   it "raises InvalidPKError in case of incorrect key ordering in start" do
-    expect { DB[:points].in_batches(pk: %i[x y z], start: { y: 16, z: 100, x: 15 }) {} }
+    expect { DB[:points].in_batches(pk: %i[x y z], start: { y: 16, z: 100, x: 15 }) }
       .to raise_error(Sequel::Extensions::Batches::InvalidPKError)
   end
 
   it "raises MissingPKError in case of missing pk" do
-    expect { DB[:points].in_batches {} }.to raise_error(Sequel::Extensions::Batches::MissingPKError)
+    expect { DB[:points].in_batches }.to raise_error(Sequel::Extensions::Batches::MissingPKError)
   end
 
   it "qualifies pk to mitigate ambiguous column error" do
-    expect { DB[:data, :data2].in_batches {} }.not_to raise_error
+    expect { DB[:data, :data2].in_batches }.not_to raise_error
   end
 
   it "validates order option" do
@@ -102,7 +102,7 @@ RSpec.describe "Sequel::Extensions::Batches" do
   end
 
   it "respects order option with composite pk" do
-    DB[:points].in_batches(pk: %i[x y z], order: :desc) { |b| chunks << b.select_map(%i[x y z]) }
+    DB[:points].in_batches(pk: %i[x y z], order: :desc).each { |b| chunks << b.select_map(%i[x y z]) }
     expect(chunks).to eq([[[15, 20, 20], [15, 15, 15]]])
   end
 end

@@ -5,11 +5,11 @@ def is_jruby?
 end
 
 require "simplecov"
-require "coveralls"
+require "simplecov-lcov"
 
 SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new([
   SimpleCov::Formatter::HTMLFormatter,
-  Coveralls::SimpleCov::Formatter,
+  SimpleCov::Formatter::LcovFormatter,
 ])
 
 SimpleCov.minimum_coverage(100) unless is_jruby?
@@ -18,6 +18,7 @@ SimpleCov.start
 require "bundler/setup"
 require "sequel"
 require "logger"
+require "yaml"
 
 DB_NAME = (ENV["DB_NAME"] || "batches_test").freeze
 
@@ -65,7 +66,7 @@ RSpec.configure do |config|
     DB[:points].multi_insert(YAML.load_file("./spec/fixtures/points.yml"))
   end
 
-  config.around(:each) do |example|
+  config.around do |example|
     DB.transaction do
       example.run
       raise Sequel::Rollback
