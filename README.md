@@ -70,8 +70,8 @@ A hash `{ [column]: <start_value> }` that represents frame start for batch proce
 ### finish
 Same as `start` but represents the frame end.
 
-### reverse_order
-Set to true if reverse order of primary key ordering is needed (false by default).
+### order
+Specifies the primary key order (can be :asc or :desc). Defaults to :asc.
 
 ## Contributing
 
