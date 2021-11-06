@@ -34,12 +34,13 @@ def connect
   else
     schema = "postgres"
   end
+
   Sequel.connect("#{schema}:///#{DB_NAME}#{user_string}").tap(&:tables)
 rescue Sequel::DatabaseConnectionError => error
   raise unless error.message.include? "database \"#{DB_NAME}\" does not exist"
 
   `createdb #{DB_NAME}`
-  Sequel.connect("#{schema}:////#{DB_NAME}#{user_string}")
+  Sequel.connect("#{schema}:///#{DB_NAME}#{user_string}")
 end
 
 DB = connect
