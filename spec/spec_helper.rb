@@ -26,7 +26,7 @@ require "yaml"
 
 DB_HOST = (ENV["PGHOST"] || "localhost").freeze
 DB_NAME = (ENV["DB_NAME"] || "batches_test").freeze
-DB_USER = (ENV["PGUSER"] || "postgres").freeze
+DB_USER = (ENV["PGUSER"] || "").freeze
 
 def connect
   schema = is_jruby? ? "jdbc:postgresql" : "postgres"
