@@ -24,18 +24,22 @@ require "sequel"
 require "logger"
 require "yaml"
 
-DB_HOST = (ENV["PGHOST"] || "localhost").freeze
-DB_NAME = (ENV["DB_NAME"] || "batches_test").freeze
 DB_USER = (ENV["PGUSER"] || "").freeze
+DB_NAME = (ENV["DB_NAME"] || "batches_test").freeze
 
 def connect
-  schema = is_jruby? ? "jdbc:postgresql" : "postgres"
-  Sequel.connect("#{schema}://#{DB_USER}@#{DB_HOST}/#{DB_NAME}").tap(&:tables)
+  if is_jruby?
+    schema = "jdbc:postgresql"
+    user_string = "?user=#{DB_USER}"
+  else
+    schema = "postgres"
+  end
+  Sequel.connect("#{schema}:///#{DB_NAME}#{user_string}").tap(&:tables)
 rescue Sequel::DatabaseConnectionError => error
   raise unless error.message.include? "database \"#{DB_NAME}\" does not exist"
 
   `createdb #{DB_NAME}`
-  Sequel.connect("#{schema}://#{DB_USER}@#{DB_HOST}/#{DB_NAME}")
+  Sequel.connect("#{schema}:////#{DB_NAME}#{user_string}")
 end
 
 DB = connect
