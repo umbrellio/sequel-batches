@@ -30,12 +30,12 @@ DB_USER = (ENV["PGUSER"] || "").freeze
 
 def connect
   schema = is_jruby? ? "jdbc:postgresql" : "postgres"
-  Sequel.connect("#{schema}://#{DB_USER}@/#{DB_NAME}").tap(&:tables)
+  Sequel.connect("#{schema}://#{DB_USER}@#{DB_HOST}/#{DB_NAME}").tap(&:tables)
 rescue Sequel::DatabaseConnectionError => error
   raise unless error.message.include? "database \"#{DB_NAME}\" does not exist"
 
   `createdb #{DB_NAME}`
-  Sequel.connect("#{schema}://#{DB_USER}@/#{DB_NAME}")
+  Sequel.connect("#{schema}://#{DB_USER}@#{DB_HOST}/#{DB_NAME}")
 end
 
 DB = connect
