@@ -24,8 +24,8 @@ require "sequel"
 require "logger"
 require "yaml"
 
-DB_USER = (ENV["PGUSER"] || "").freeze
-DB_NAME = (ENV["DB_NAME"] || "batches_test").freeze
+DB_USER = ENV.fetch("PGUSER", "").freeze
+DB_NAME = ENV.fetch("DB_NAME", "batches_test").freeze
 
 def connect
   if is_jruby?
