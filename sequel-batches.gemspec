@@ -5,10 +5,10 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |spec|
   spec.name = "sequel-batches"
-  spec.version = "1.1.0"
+  spec.version = "2.0.0"
   spec.authors = %w[fiscal-cliff umbrellio]
   spec.email = ["oss@umbrellio.biz"]
-  spec.required_ruby_version = ">= 2.6"
+  spec.required_ruby_version = ">= 2.7"
 
   spec.summary = "The extension mimics AR5 batches api"
   spec.description = "Allows you to split your dataset in batches"
@@ -22,13 +22,11 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency "bundler"
   spec.add_development_dependency "bundler-audit"
-
+  spec.add_development_dependency "pg"
   spec.add_development_dependency "pry"
   spec.add_development_dependency "rake"
-
-  spec.add_development_dependency "rubocop-config-umbrellio"
-
   spec.add_development_dependency "rspec"
+  spec.add_development_dependency "rubocop-config-umbrellio"
   spec.add_development_dependency "simplecov"
   spec.add_development_dependency "simplecov-lcov"
 end
