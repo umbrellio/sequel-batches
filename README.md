@@ -12,14 +12,6 @@ Add this line to your application's Gemfile:
 gem 'sequel-batches'
 ```
 
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install sequel-batches
-
 ## Usage
 
 In order to use the feature you should enable the extension:
@@ -57,21 +49,26 @@ end
 You can set the following options:
 
 ### pk
+
 Overrides primary key of your dataset. This option is required in case your table doesn't have a real PK, otherwise you will get `Sequel::Extensions::Batches::MissingPKError`.
 
 Note that you have to provide columns that don't contain NULL values, otherwise this may not work as intended. You will receive `Sequel::Extensions::Batches::NullPKError` in case batch processing detects a NULL value on it's way, but it's not guaranteed since it doesn't check all the rows for performance reasons.
 
 ### of
+
 Sets chunk size (1000 by default).
 
 ### start
+
 A hash `{ [column]: <start_value> }` that represents frame start for batch processing. Note that you will get `Sequel::Extensions::Batches::InvalidPKError` in case you provide a hash with wrong keys (ordering matters as well).
 
 ### finish
+
 Same as `start` but represents the frame end.
 
 ### order
-Specifies the primary key order (can be :asc or :desc). Defaults to :asc.
+
+Specifies the primary key order (can be `:asc` or `:desc`). Defaults to `:asc`.
 
 ## Contributing
 

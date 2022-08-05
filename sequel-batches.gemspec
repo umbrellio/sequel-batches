@@ -5,7 +5,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |spec|
   spec.name = "sequel-batches"
-  spec.version = "1.1.0"
+  spec.version = "2.0.0"
   spec.authors = %w[fiscal-cliff umbrellio]
   spec.email = ["oss@umbrellio.biz"]
   spec.required_ruby_version = ">= 2.7"
