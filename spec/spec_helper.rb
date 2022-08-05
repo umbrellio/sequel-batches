@@ -1,9 +1,5 @@
 # frozen_string_literal: true
 
-def is_jruby?
-  RUBY_ENGINE == "jruby"
-end
-
 require "simplecov"
 require "simplecov-lcov"
 
@@ -16,7 +12,7 @@ SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new([
   SimpleCov::Formatter::LcovFormatter,
 ])
 
-SimpleCov.minimum_coverage(100) unless is_jruby?
+SimpleCov.minimum_coverage(100)
 SimpleCov.start
 
 require "bundler/setup"
@@ -28,19 +24,12 @@ DB_USER = ENV.fetch("PGUSER", "").freeze
 DB_NAME = ENV.fetch("DB_NAME", "batches_test").freeze
 
 def connect
-  if is_jruby?
-    schema = "jdbc:postgresql"
-    user_string = "?user=#{DB_USER}"
-  else
-    schema = "postgres"
-  end
-
-  Sequel.connect("#{schema}:///#{DB_NAME}#{user_string}").tap(&:tables)
+  conn_string = "postgres:///#{DB_NAME}"
+  Sequel.connect(conn_string).tap(&:tables)
 rescue Sequel::DatabaseConnectionError => error
   raise unless error.message.include? "database \"#{DB_NAME}\" does not exist"
-
-  `createdb #{DB_NAME}`
-  Sequel.connect("#{schema}:///#{DB_NAME}#{user_string}")
+  system("createdb #{DB_NAME}")
+  Sequel.connect(conn_string)
 end
 
 DB = connect

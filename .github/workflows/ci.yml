@@ -29,7 +29,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: ["2.6", "2.7", "3.0", "3.1", "jruby-9.3.1.0", "ruby-head", "jruby-head"]
+        ruby: ["2.7", "3.0", "3.1"]
 
     name: ${{ matrix.ruby }}
 
@@ -44,7 +44,6 @@ jobs:
       - run: bundle exec rake bundle:audit
       - run: bundle exec rake lint
       - run: bundle exec rspec
-        continue-on-error: ${{ matrix.ruby == 'jruby-head' ||  matrix.ruby == 'ruby-head' }}
 
       - uses: coverallsapp/github-action@v1.1.2
         with:
