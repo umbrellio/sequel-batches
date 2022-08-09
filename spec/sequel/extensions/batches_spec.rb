@@ -100,6 +100,12 @@ RSpec.describe "Sequel::Extensions::Batches" do
     expect { DB[:data, :data2].in_batches }.not_to raise_error
   end
 
+  it "qualifies pk to mitigate ambiguous column error in case of composite pk" do
+    scope = DB[:data].join(:data2, Sequel[:data][:id] =~ Sequel[:data2][:id]).order(Sequel[:data][:id])
+    scope.in_batches(pk: [:created_at, :id], of: 2) { |b| chunks << b.select_map(Sequel[:data][:id]) }
+    expect(chunks).to eq([[1, 2], [3, 4], [5, 6]])
+  end
+
   it "respects order option" do
     DB[:data].in_batches(of: 3, order: :desc) { |b| chunks << b.select_map(:id) }
     expect(chunks).to eq([[6, 5, 4], [3, 2, 1]])
