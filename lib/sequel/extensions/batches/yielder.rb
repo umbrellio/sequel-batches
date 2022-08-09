@@ -31,7 +31,7 @@ module Sequel::Extensions::Batches
             base_ds
           end
 
-        working_ds_pk = working_ds.select(*qualified_pk).order(order_by).limit(of)
+        working_ds_pk = working_ds.select(*qualified_pk).order(order_by(qualified: true)).limit(of)
         current_instance = db.from(working_ds_pk).select(*pk).order(order_by).last or break
         working_ds = working_ds.where(generate_conditions(current_instance.to_h, sign: sign_to_inclusive))
 
