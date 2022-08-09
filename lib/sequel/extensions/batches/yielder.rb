@@ -70,12 +70,16 @@ module Sequel::Extensions::Batches
     end
 
     def order_by(qualified: false)
-      columns = qualified ? qualified_pk : pk.map { |x| x.is_a?(Symbol) ? Sequel[x] : x }
+      columns = qualified ? qualified_pk : unqualified_pk
       asc_order? ? columns.map(&:asc) : columns.map(&:desc)
     end
 
     def qualified_pk
       @qualified_pk ||= pk.map { |x| Sequel[ds.first_source][x] }
+    end
+
+    def unqualified_pk
+      @unqualified_pk ||= pk.map { |x| x.is_a?(Symbol) ? Sequel[x] : x }
     end
 
     def check_pk(input_pk)
