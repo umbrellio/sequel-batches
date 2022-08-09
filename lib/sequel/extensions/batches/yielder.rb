@@ -70,8 +70,8 @@ module Sequel::Extensions::Batches
     end
 
     def order_by(qualified: false)
-      columns = qualified ? qualified_pk : pk
-      asc_order? ? Sequel.asc(columns) : Sequel.desc(columns)
+      columns = qualified ? qualified_pk : pk.map { |x| x.is_a?(Symbol) ? Sequel[x] : x }
+      asc_order? ? columns.map(&:asc) : columns.map(&:desc)
     end
 
     def qualified_pk
