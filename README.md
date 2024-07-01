@@ -17,7 +17,7 @@ gem 'sequel-batches'
 In order to use the feature you should enable the extension:
 
 ```ruby
-Sequel::DATABASES.first.extension :batches
+DB.extension(:batches)
 ```
 
 After that the `#in_batches` method becomes available on dataset:
@@ -39,8 +39,8 @@ options = {
   order: :desc,
 }
 
-Event.where(type: "login").in_batches(options) do |ds|
-  ds.delete
+Event.where(type: "login").in_batches(**options) do |dataset|
+  dataset.delete
 end
 ```
 
