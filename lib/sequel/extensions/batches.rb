@@ -14,6 +14,6 @@ module Sequel
   end
 end
 
-::Sequel::Dataset.register_extension(:batches, Sequel::Extensions::Batches)
+Sequel::Dataset.register_extension(:batches, Sequel::Extensions::Batches)
 
 require_relative "batches/yielder"

@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "bundler/gem_tasks"
-require "bundler/audit/task"
 require "rspec/core/rake_task"
 require "rubocop/rake_task"
 
@@ -13,6 +12,5 @@ RuboCop::RakeTask.new(:lint) do |t|
   t.requires << "rubocop-rspec"
   t.requires << "rubocop-performance"
 end
-Bundler::Audit::Task.new
 
 task default: %i[lint spec]
