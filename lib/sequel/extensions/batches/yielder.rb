@@ -21,19 +21,19 @@ module Sequel::Extensions::Batches
       base_ds = setup_base_ds or return
       return enum_for(:call) unless block_given?
 
-      current_instance = nil
+      current_pk = nil
 
       loop do
         working_ds =
-          if current_instance
-            base_ds.where(generate_conditions(current_instance.to_h, sign: sign_from_exclusive))
+          if current_pk
+            base_ds.where(generate_conditions(current_pk.to_h, sign: sign_from_exclusive))
           else
             base_ds
           end
 
         working_ds_pk = working_ds.select(*qualified_pk).order(*order_by(qualified: true)).limit(of)
-        current_instance = db.from(working_ds_pk).select(*pk).order(*order_by).last or break
-        working_ds = working_ds.where(generate_conditions(current_instance.to_h, sign: sign_to_inclusive))
+        current_pk = db.from(working_ds_pk).select(*pk).order(*order_by).last or break
+        working_ds = working_ds.where(generate_conditions(current_pk.to_h, sign: sign_to_inclusive))
 
         yield working_ds
       end
@@ -94,7 +94,7 @@ module Sequel::Extensions::Batches
     end
 
     def setup_base_ds
-      base_ds = ds.order(*order_by(qualified: true))
+      base_ds = ds
       base_ds = base_ds.where(generate_conditions(check_pk(start), sign: sign_from_inclusive)) if start
       base_ds = base_ds.where(generate_conditions(check_pk(finish), sign: sign_to_inclusive)) if finish
 
@@ -105,7 +105,8 @@ module Sequel::Extensions::Batches
       return unless actual_start && actual_finish
 
       base_ds = base_ds.where(generate_conditions(actual_start, sign: sign_from_inclusive))
-      base_ds.where(generate_conditions(actual_finish, sign: sign_to_inclusive))
+      base_ds = base_ds.where(generate_conditions(actual_finish, sign: sign_to_inclusive))
+      base_ds.order(*order_by(qualified: true))
     end
   end
 end
